@@ -83,6 +83,7 @@ function live(clicked = false) {
 
 function stop() {
     if (lifeTimout) clearTimeout(lifeTimout);
+    lifeTimout = null;
 }
 
 function updateSpeed(val) {
