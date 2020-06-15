@@ -1,0 +1,162 @@
+<style>
+    .grid { margin:1em auto; border-collapse:collapse }
+    .grid td {
+        cursor:pointer;
+        width:7px; height:10px;
+        border:1px solid #ebebeb;
+    }
+    .grid td.alive {
+        background-color: #00ff40;
+    }
+    .controls {
+        width: fit-content;
+        margin: auto;
+    }
+    .control {
+        margin: 0 .25rem;
+    }
+    .slider-container {
+        position: relative;
+        display: inline-block;
+        width: 200px;
+    }
+    /* The slider itself */
+    .slider {
+        -webkit-appearance: none;  /* Override default CSS styles */
+        appearance: none;
+        position: absolute;
+        top: -10px;
+        height: 5px; /* Specified height */
+        width: 100%;
+        background: #d3d3d3; /* Grey background */
+        outline: none; /* Remove outline */
+        opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
+        -webkit-transition: .2s; /* 0.2 seconds transition on hover */
+        transition: opacity .2s;
+        -webkit-transform: scaleX(-1);
+        transform: scaleX(-1);
+    }
+
+    /* Mouse-over effects */
+    .slider:hover {
+        opacity: 1; /* Fully shown on mouse-over */
+    }
+
+    /* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
+    .slider::-webkit-slider-thumb {
+        -webkit-appearance: none; /* Override default look */
+        appearance: none;
+        width: 6px; /* Set a specific slider handle width */
+        height: 20px; /* Slider handle height */
+        background: #4CAF50; /* Green background */
+        cursor: pointer; /* Cursor on hover */
+    }
+
+</style>
+<body>
+    <div id="field"></div>
+    <div class="controls">
+        <button onclick="live()" class="control">Start</button>
+        <button onclick="stop()" class="control">Stop</button>
+        <button onclick="init()" class="control">Reset</button>
+        <span class="control">
+            Speed
+            <div class="slider-container">
+                <input type="range" min="10" max="1000" value="200" class="slider" onchange="updateSpeed(this.value)">
+            </div>
+        </span>
+        <span class="control">
+            Generation: <span id="genCount">0</span>
+        </span>
+    </div>
+</body>
+<script>
+    let TIMEOUT = 200;
+    const FIELD_W = 100;
+    const FIELD_H = 80;
+    let lifeTimout = null;
+    let generation = 0;
+
+    let field = [];
+    function init() {
+        stop();
+        generation = 0;
+        document.getElementById('genCount').innerHTML = generation;
+        for (let i = 0; i < FIELD_H; i++) {
+            field[i] = [];
+            for (let j = 0; j < FIELD_W; j++) {
+                field[i][j] = 0;
+            }
+        }
+    }
+    init();
+
+    var grid = clickableGrid(FIELD_H, FIELD_W, function(el, row, col){
+        field[row][col] = (field[row][col] + 1) % 2;
+        el.className = field[row][col] ? 'alive' : '';
+
+    });
+
+    document.getElementById('field').appendChild(grid);
+        
+    function clickableGrid(rows, cols, callback){
+        const grid = document.createElement('table');
+        grid.className = 'grid';
+        for (let i = 0; i < rows; i++){
+            const tr = grid.appendChild(document.createElement('tr'));
+            for (let j = 0; j < cols; j++){
+                const cell = tr.appendChild(document.createElement('td'));
+                cell.setAttribute('id', `${i}x${j}`)
+                cell.addEventListener('click',(function(el, i, j){
+                    return function(){
+                        callback(el, i, j);
+                    }
+                })(cell, i, j),false);
+            }
+        }
+        return grid;
+    }
+
+    function neighbourCount(i, j) {
+        return field[(FIELD_H + (i-1)) % FIELD_H][(FIELD_W + (j-1)) % FIELD_W]
+             + field[(FIELD_H + (i-1)) % FIELD_H][(FIELD_W + (j)) % FIELD_W]
+             + field[(FIELD_H + (i-1)) % FIELD_H][(FIELD_W + (j+1)) % FIELD_W]
+             + field[(FIELD_H + (i)) % FIELD_H][(FIELD_W + (j-1)) % FIELD_W]
+             + field[(FIELD_H + (i)) % FIELD_H][(FIELD_W + (j+1)) % FIELD_W]
+             + field[(FIELD_H + (i+1)) % FIELD_H][(FIELD_W + (j-1)) % FIELD_W]
+             + field[(FIELD_H + (i+1)) % FIELD_H][(FIELD_W + (j)) % FIELD_W]
+             + field[(FIELD_H + (i+1)) % FIELD_H][(FIELD_W + (j+1)) % FIELD_W];
+    }
+
+    function live() {
+        const nextField = [];
+        for (let i = 0; i < FIELD_H; i++) {
+            nextField[i] = [];
+            for (let j = 0; j < FIELD_W; j++) {
+                const neighbours = neighbourCount(i, j);
+                nextField[i][j] = field[i][j];
+                if (field[i][j] === 1) {
+                    if (neighbours < 2 || neighbours > 3) {
+                        nextField[i][j] = 0;
+                        document.getElementById(`${i}x${j}`).className = '';
+                    }
+                } else if (neighbours === 3) {
+                    nextField[i][j] = 1;
+                    document.getElementById(`${i}x${j}`).className = 'alive';
+                }
+            }
+        }
+        generation++;
+        document.getElementById('genCount').innerHTML = generation;
+        field = nextField;
+        lifeTimout = setTimeout(live, TIMEOUT);
+    }
+
+    function stop() {
+        if (lifeTimout) clearTimeout(lifeTimout);
+    }
+
+    function updateSpeed(val) {
+        TIMEOUT = val;
+    }
+</script>
