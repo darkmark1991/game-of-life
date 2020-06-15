@@ -1,0 +1,61 @@
+body {
+    background-color: #e9ecef;
+}
+.header {
+    text-align: center;
+}
+.header h2 {
+    margin: .5rem;
+}
+.grid { margin:1em auto; border-collapse:collapse }
+.grid td {
+    cursor:pointer;
+    width:7px; height:7px;
+    border:1px solid rgb(250, 250, 250);
+}
+.grid td.alive {
+    background-color: #00ff40;
+}
+.controls {
+    width: fit-content;
+    margin: auto;
+}
+.control {
+    margin: 0 .25rem;
+}
+.slider-container {
+    position: relative;
+    display: inline-block;
+    width: 200px;
+}
+/* The slider itself */
+.slider {
+    -webkit-appearance: none;  /* Override default CSS styles */
+    appearance: none;
+    position: absolute;
+    top: -10px;
+    height: 5px; /* Specified height */
+    width: 100%;
+    background: #d3d3d3; /* Grey background */
+    outline: none; /* Remove outline */
+    opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
+    -webkit-transition: .2s; /* 0.2 seconds transition on hover */
+    transition: opacity .2s;
+    -webkit-transform: scaleX(-1);
+    transform: scaleX(-1);
+}
+
+/* Mouse-over effects */
+.slider:hover {
+    opacity: 1; /* Fully shown on mouse-over */
+}
+
+/* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none; /* Override default look */
+    appearance: none;
+    width: 6px; /* Set a specific slider handle width */
+    height: 20px; /* Slider handle height */
+    background: #4CAF50; /* Green background */
+    cursor: pointer; /* Cursor on hover */
+}
